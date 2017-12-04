@@ -6,17 +6,18 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ProgressBarPlugin = require('progress-bar-webpack-plugin');
+const clean = require('clean-webpack-plugin');
 const packageInfo = require('./package.json');
 
 module.exports = {
   devtool: 'source-map',
   entry: {
-    browser: ['react-hot-loader/patch', path.join(__dirname, 'app/index.js')],
+    browser: path.join(__dirname, 'app/index.js'),
     common: ['react', 'react-router']
   },
   output: {
-    path: path.join(__dirname, '../build'),
-    filename: '[name].js',
+    path: path.join(__dirname, './build'),
+    filename: '[name]-[chunkhash].min.js',
     publicPath: '/'
   },
   resolve: {
@@ -35,7 +36,9 @@ module.exports = {
     }
   },
   plugins: [
+    new clean(['./build']),
     new ProgressBarPlugin(),
+    new webpack.optimize.OccurrenceOrderPlugin(),
     new HtmlWebpackPlugin({
       title: packageInfo.title,
       version: packageInfo.version,
@@ -52,9 +55,15 @@ module.exports = {
       chunks: ['browser']
     }),
     new webpack.NoEmitOnErrorsPlugin(),
+    new webpack.optimize.UglifyJsPlugin({
+      compressor: {
+        warnings: false
+      },
+      minimize: true
+    }),
     new webpack.DefinePlugin({
       'process.env': {
-        NODE_ENV: JSON.stringify(process.env.NODE_ENV)
+        NODE_ENV: JSON.stringify('production')
       }
     })
   ],

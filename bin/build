@@ -1,4 +1,4 @@
 #!/bin/bash -e
 
 NODE_ENV="$@" \
-webpack --config ./webpack.production.config.js --profile --colors
+webpack --config ./webpack.production.js --profile --colors
